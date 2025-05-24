@@ -46,7 +46,7 @@ class User(Base):
     email = Column(String(100))
     matricule = Column(String(50), unique=True, index=True)
 
-    ocr_results = relationship("ResultatOCR", back_populates="user")
+   # ocr_results = relationship("ResultatOCR", back_populates="user")
 
 class EnregistrementPeage(Base):
     __tablename__ = "enregistrements_peage"
@@ -70,8 +70,6 @@ class ResultatOCR(Base):
     chemin_image_ocr = Column(String(255), nullable=True)
     date_insertion = Column(DateTime, default=datetime.utcnow)
 
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
-    user = relationship("User", back_populates="ocr_results")
 
 # --- SCHEMAS ---
 
@@ -106,7 +104,7 @@ class ResultatOCRResponse(BaseModel):
     chemin_photo: Optional[str] = None
     chemin_image_ocr: Optional[str] = None
     date_insertion: datetime
-    user_id: Optional[int] = None
+   # user_id: Optional[int] = None
 
 # --- Lifespan ---
 
@@ -230,7 +228,7 @@ async def import_ocr_csv(
             "chemin_image_ocr": row["PlateImage"]
         }
             rec = ResultatOCRCreate.parse_obj(mapped_row)
-            montant = 23 if rec.nom_station.lower() == "Station Paris" else 30 if rec.nom_station.lower() == "Station Marseille" else None
+            montant = 23 if rec.nom_station.lower() == "station paris" else 30 if rec.nom_station.lower() == "station marseille" else None
 
             to_add.append(
                 ResultatOCR(
@@ -283,6 +281,7 @@ def importer_csv_ocr_initial(path: str, db: Session):
                     "matricule": row["PlateNumber"],
                     "date_detection": row["Date"],
                     "nom_station": row["Station"],
+                    "montant":row["Montant"],
                     "chemin_photo": row["Image"],
                     "chemin_image_ocr": row["PlateImage"]
                 }
@@ -291,7 +290,7 @@ def importer_csv_ocr_initial(path: str, db: Session):
                     matricule=rec.matricule,
                     date_detection=rec.date_detection
                 ).first()
-                montant = 23 if rec.nom_station.lower() == "Station Paris" else 30 if rec.nom_station.lower() == "Station Marseille" else None
+                montant = 23 if rec.nom_station.lower() == "station paris" else 30 if rec.nom_station.lower() == "station marseille" else None
 
                 if not existe:
 
